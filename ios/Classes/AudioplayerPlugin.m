@@ -13,6 +13,7 @@ static AVPlayerItem *playerItem;
 -(void)stop;
 -(void)mute:(BOOL)muted;
 -(void)seek:(CMTime)time;
+-(void)setVolume:(double)volume;
 -(void)onStart;
 -(void)onTimeInterval:(CMTime)time;
 @end
@@ -64,6 +65,11 @@ FlutterMethodChannel *_channel;
                               @"seek":
                                   ^{
                                       [self seek:CMTimeMakeWithSeconds([call.arguments doubleValue], 1)];
+                                      result(nil);
+                                  },
+                              @"setVolume":
+                                  ^{
+                                      [self setVolume:[call.arguments doubleValue]];
                                       result(nil);
                                   }
                               };
@@ -161,6 +167,10 @@ FlutterMethodChannel *_channel;
 
 - (void)seek:(CMTime)time {
     [playerItem seekToTime:time];
+}
+
+- (void)setVolume:(double)volume {
+  player.volume = (float)((volume < 0.0) ? 0.0 : ((volume > 1.0) ? 1.0 : volume));
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath

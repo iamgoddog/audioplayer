@@ -77,6 +77,11 @@ public class AudioplayerPlugin implements FlutterPlugin, MethodCallHandler {
         seek(position);
         result.success(null);
         break;
+      case "setVolume":
+        double volume = call.arguments();
+        setVolume(volume);
+        result.success(null);
+        break;
       case "mute":
         Boolean muted = call.arguments();
         mute(muted);
@@ -97,6 +102,11 @@ public class AudioplayerPlugin implements FlutterPlugin, MethodCallHandler {
 
   private void seek(double position) {
     mediaPlayer.seekTo((int) (position * 1000));
+  }
+
+  private void setVolume(double value) {
+    float bracketedValue = (float) Math.max(0.0, Math.min(1.0, value));
+    mediaPlayer.setVolume(bracketedValue, bracketedValue);
   }
 
   private void stop() {
