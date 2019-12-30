@@ -84,8 +84,12 @@ FlutterMethodChannel *_channel;
 
 - (void)play:(NSString*)url isLocal:(int)isLocal {
     if (![url isEqualToString:lastUrl]) {
-        [playerItem removeObserver:self
+        @try {
+            [[player currentItem] removeObserver:self
                         forKeyPath:@"player.currentItem.status"];
+        } @catch (NSException *exception) {
+            NSLog(@"%@", exception.reason);
+        }
         
         for (id ob in observers) {
             [[NSNotificationCenter defaultCenter] removeObserver:ob];
@@ -100,12 +104,12 @@ FlutterMethodChannel *_channel;
         lastUrl = url;
         
         id anobserver = [[NSNotificationCenter defaultCenter] addObserverForName:AVPlayerItemDidPlayToEndTimeNotification
-                                                                          object:playerItem
-                                                                           queue:nil
-                                                                      usingBlock:^(NSNotification* note){
-                                                                          [self stop];
-                                                                          [_channel invokeMethod:@"audio.onComplete" arguments:nil];
-                                                                      }];
+                                                              object:playerItem
+                                                              queue:nil
+                                                              usingBlock:^(NSNotification* note){
+                                                                [self stop];
+                                                                [_channel invokeMethod:@"audio.onComplete" arguments:nil];
+                                                              }];
         [observers addObject:anobserver];
         
         if (player) {
